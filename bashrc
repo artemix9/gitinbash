@@ -16,62 +16,62 @@
 # Copyright (C) 2017 Artem Kozlov
 # Contacts: <artemix-dev@yandex.ru>
 
-COLOR_RED="\033[0;31m"
-COLOR_YELLOW="\033[0;33m"
-COLOR_GREEN="\033[0;32m"
-COLOR_BROWN="\033[38;5;95m"
-COLOR_BLUE="\033[0;34m"
-COLOR_WHITE="\033[0;37m"
-COLOR_RESET="\033[0m"
+COLOR_RED="\[\033[0;31m\]"
+COLOR_YELLOW="\[\033[0;33m\]"
+COLOR_GREEN="\[\033[0;32m\]"
+COLOR_BROWN="\[\033[38;5;95m\]"
+COLOR_BLUE="\[\033[0;34m\]"
+COLOR_WHITE="\[\033[0;37m\]"
+COLOR_RESET="\[\033[0m\]"
 
-UNICODE_CHECK="\xe2\x9c\x93"
-UNICODE_CROSS="\xe2\x9c\x97"
-UNICODE_BULLET="\xe2\x80\xa2"
-UNICODE_PLUS="\xe2\x9c\x9b"
+CHAR_CHECK="\xe2\x9c\x93"
+CHAR_CROSS="\xc3\x97"
+CHAR_DOT="\xe2\x88\x99"
+CHAR_PLUS="+"
+CHAR_ALT="\xe2\x8e\x87"
 
 function __check_repo__ {
     local cur_branch="$(git rev-parse --abbrev-ref HEAD 2> /dev/null)"
-    if [[ ! -z "${cur_branch// }" ]]
+    if [[ -z "${cur_branch// }" ]]
     then
-        # In bash 0 == true
-        return 0
-    else
-        return 1
+        exit 1
     fi
+}
+
+function __lscope__ {
+    __check_repo__
+    echo -ne " ["
+}
+
+function __rscope__ {
+    __check_repo__
+    echo -ne "]"
 }
 
 function __branch__ {
-    if ( $(__check_repo__) )
-    then
-        echo -ne "[$(git rev-parse --abbrev-ref HEAD 2> /dev/null)] "
-    fi
+    __check_repo__
+    echo -ne "$CHAR_ALT $(git rev-parse --abbrev-ref HEAD 2> /dev/null) | "
 }
 
 function __untracked__ {
-    if ( $(__check_repo__) )
-    then
-        echo -ne $(git status -s 2> /dev/null | egrep "^\?\?" | wc -l)"$UNICODE_CROSS "
-    fi
+    __check_repo__
+    echo -ne $(git status -s 2> /dev/null | egrep "^\?\?" | wc -l)"$CHAR_CROSS "
 }
 
 function __modified__ {
-    if ( $(__check_repo__) )
-    then
-        echo -ne $(git diff --name-only 2> /dev/null | wc -l)"$UNICODE_BULLET "
-    fi
+    __check_repo__
+    echo -ne $(git diff --name-only 2> /dev/null | wc -l)"$CHAR_DOT "
 }
 
 function __staged__ {
-    if ( $(__check_repo__) )
-    then
-        echo -ne $(git diff --staged --name-only 2> /dev/null | wc -l)"$UNICODE_CHECK "
-    fi
+    __check_repo__
+    echo -ne $(git diff --staged --name-only 2> /dev/null | wc -l)"$CHAR_PLUS"
 }
 
-
-PS1="\W \`__branch__\`"
-PS1+="\[$COLOR_RED\]\`__untracked__\`"
-PS1+="\[$COLOR_YELLOW\]\`__modified__\`"
-PS1+="\[$COLOR_GREEN\]\`__staged__\`"
-PS1+="\[$COLOR_RESET\]\$ "
+PS1="$COLOR_RESET\W"
+PS1+="\`__lscope__\`\`__branch__\`"
+PS1+="$COLOR_RED\`__untracked__\`"
+PS1+="$COLOR_YELLOW\`__modified__\`"
+PS1+="$COLOR_GREEN\`__staged__\`"
+PS1+="$COLOR_RESET\`__rscope__\` \$ "
 export PS1
