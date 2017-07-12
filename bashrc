@@ -41,35 +41,37 @@ function __check_repo__ {
 }
 
 function __branch__ {
-    echo -ne "[$(git rev-parse --abbrev-ref HEAD 2> /dev/null)]"
+    if ( $(__check_repo__) )
+    then
+        echo -ne "[$(git rev-parse --abbrev-ref HEAD 2> /dev/null)] "
+    fi
 }
 
 function __untracked__ {
-    echo -ne $(git status -s 2> /dev/null | egrep "^\?\?" | wc -l)"$UNICODE_CROSS"
+    if ( $(__check_repo__) )
+    then
+        echo -ne $(git status -s 2> /dev/null | egrep "^\?\?" | wc -l)"$UNICODE_CROSS "
+    fi
 }
 
 function __modified__ {
-    echo -ne $(git diff --name-only 2> /dev/null | wc -l)"$UNICODE_BULLET"
+    if ( $(__check_repo__) )
+    then
+        echo -ne $(git diff --name-only 2> /dev/null | wc -l)"$UNICODE_BULLET "
+    fi
 }
 
 function __staged__ {
-    echo -ne $(git diff --staged --name-only 2> /dev/null | wc -l)"$UNICODE_CHECK"
-}
-
-function __parse_git__ {
-    if ( ! $(__check_repo__) )
+    if ( $(__check_repo__) )
     then
-        return 1
+        echo -ne $(git diff --staged --name-only 2> /dev/null | wc -l)"$UNICODE_CHECK "
     fi
-
-    __branch__
-    echo -ne "$COLOR_RED "
-    __untracked__
-    echo -ne "$COLOR_YELLOW "
-    __modified__
-    echo -ne "$COLOR_GREEN "
-    __staged__
-    echo -ne "$COLOR_RESET "
 }
 
-export PS1='\W `__parse_git__`\$ '
+
+PS1="\W \`__branch__\`"
+PS1+="\[$COLOR_RED\]\`__untracked__\`"
+PS1+="\[$COLOR_YELLOW\]\`__modified__\`"
+PS1+="\[$COLOR_GREEN\]\`__staged__\`"
+PS1+="\[$COLOR_RESET\]\$ "
+export PS1
