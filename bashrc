@@ -55,7 +55,7 @@ function __branch__ {
 
 function __untracked__ {
     __check_repo__
-    echo -ne $(git status -s 2> /dev/null | egrep "^\?\?" | wc -l)"$CHAR_CROSS "
+    echo -ne $(git status -s -u 2> /dev/null | egrep "^\?\?" | wc -l)"$CHAR_CROSS "
 }
 
 function __modified__ {

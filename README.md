@@ -1,10 +1,7 @@
 # gitinbash
-Customized bash prompt with git repository info.
+Customized bash prompt with git repository info. See the screenshot.
 
-It looks like:
-directory [master] 2✗ 1• 2✓ $
-
-where the first digit (red) displays count of untracked files,
+The first digit (red) displays count of untracked files,
 the second digit (yellow) displays count of modified files
 (not staged for commit) and the third digit (green) displays count of staged
 files (to be commited).
